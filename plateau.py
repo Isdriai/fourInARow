@@ -43,6 +43,35 @@ class Plateau(object):
 				possible.append(move)
 		return possible
 
+	def winner(self):
+	for tile in self.player:
+	    # check horizontal spaces
+	    for y in range(BOARDHEIGHT):
+	        for x in range(BOARDWIDTH - 3):
+	            if self.plateau[x][y] == tile and self.plateau[x+1][y] == tile and self.plateau[x+2][y] == tile and self.plateau[x+3][y] == tile:
+	                return tile
+
+	    # check vertical spaces
+	    for x in range(BOARDWIDTH):
+	        for y in range(BOARDHEIGHT - 3):
+	            if self.plateau[x][y] == tile and self.plateau[x][y+1] == tile and self.plateau[x][y+2] == tile and self.plateau[x][y+3] == tile:
+	                return tile
+
+	    # check / diagonal spaces
+	    for x in range(BOARDWIDTH - 3):
+	        for y in range(3, BOARDHEIGHT):
+	            if self.plateau[x][y] == tile and self.plateau[x+1][y-1] == tile and self.plateau[x+2][y-2] == tile and self.plateau[x+3][y-3] == tile:
+	                return tile
+
+	    # check \ diagonal spaces
+	    for x in range(BOARDWIDTH - 3):
+	        for y in range(BOARDHEIGHT - 3):
+	            if self.plateau[x][y] == tile and self.plateau[x+1][y+1] == tile and self.plateau[x+2][y+2] == tile and self.plateau[x+3][y+3] == tile:
+	                return tile
+
+    return -1
+
+
 	def addPlayer(self, nplayer):
 		for mark in self.player:
 			if(mark == nplayer):
