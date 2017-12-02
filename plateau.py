@@ -8,6 +8,8 @@ class Plateau(object):
 	BOARDWIDTH = 7
 	BOARDHEIGHT = 6
 
+	COLORS = ['x', 'o']
+
 	def drawBoard(self):
 	    print()
 	    print(' ', end='')
@@ -44,7 +46,7 @@ class Plateau(object):
 		return possible
 
 	def winner(self):
-	for tile in self.player:
+	for tile in COLORS:
 	    # check horizontal spaces
 	    for y in range(BOARDHEIGHT):
 	        for x in range(BOARDWIDTH - 3):
@@ -71,15 +73,5 @@ class Plateau(object):
 
     return -1
 
-
-	def addPlayer(self, nplayer):
-		for mark in self.player:
-			if(mark == nplayer):
-				''' Si l'entier représentant le joueur est 
-				deja utilisé, on ne le rajoute pas '''
-				return
-		self.player.append(nplayer)
-
 	def __init__(self, width=BOARDWIDTH, height=BOARDHEIGHT):
 		self.plateau = [[0] * width ] * height
-		self.player=[]

@@ -1,58 +1,43 @@
 class Protocole(object):
 
-	RUN="Run"
-	INIT="Init"
+	version="1"
 
-	def sendMove(numPlayer, x, y):
-		if(numPlayer < 0 or x < 0 or y < 0):
-			raise
+	def sendMove():
 
-		return str(numPlayer)+' '+str(x)+' 'str(y)
+		
+	def receiveMove():
 
-	def sendAddPlayer(num):
-		return "Add " + str(num)
+		
+	def begin():
 
-	def sendEndInit():
-		return INIT
+		
+	def receiveBoard():
 
-	def sendRun():
-		return RUN
+		
+	def sendVersion():
 
-	def receiveEndInit(message):
-		if(message == INIT):
-			return True
-		else:
-			return False
+		
+	def sendLogin():
 
-	def receiveRun(message):
-		if(message == RUN):
-			return True
-		else:
-			return False
+		
+	def receiveAnswerLogin():
 
-	def receiveAddPlayer(message):
-		rec = message.split(' ')
-		if(len(rec) != 2):
-			raise
-		if(rec[0] != "Add"):
-			raise
+		
+	def sendPassword():
 
-		if(!rec[1].isDigit()):
-			raise
+		
+	def receiveRooms():
 
-		return int(rec[1])
+		
+	def createRoom():
 
-	def receiveMove(message)
-		rec = message.split(' ')
-		if(len(receive) != 3):
-			raise
+		
+	def joinRoom():
 
-		receive = [int(x) for x in rec]
+		
+	def receiveAnswerRoom():
 
-		for info in receive:
-			if info < 0:
-				raise
+		
+	def initColor():
 
-		return message.split(' ')
-
-	
+		
