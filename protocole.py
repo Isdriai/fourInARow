@@ -1,64 +1,123 @@
+from socket import socket, AF_INET, SOCK_STREAM
+from time import sleep
+import re
+
 class Protocole(object):
 
-	VERSION="1"
-	UNKNOW_LOGIN = "UNKNOW_LOGIN"
-	CREATE_ACCOUNT = "CREATE_ACCOUNT: "
-	CONFIRM_ACCOUNT = "CONFIRM_ACCOUNT: "
-	PASSWORD = "PASSWORD:"
-	ASK_PASSWORD = "ASK_PASSWORD"
-	ERROR_PASSWORD = "WRONG PASSWORD"
-	CREATE_ROOM = "CREATE_ROOM"
-	SELECT_ROOM = "SELECT_ROOM: "
-	ROOM_CONFIRM = "ROOM_CONFIRM"
-	ERROR_ROOM = "ROOM does not exist"
-	COLOR = "COLOR: "
-	ERROR_COLOR = "Color not available"
-	BEGIN = "BEGIN"
-	ERROR_MOVE = "Impossible move"
-	QUIT_ROOM = "QUIT_ROOM"
-	QUIT_SERVER = "QUIT_SERVER"
-	GAME_FINISHED = "GAME_FINISHED"
-	ASK_LIST = "ASK_LIST"
-	LIST = "LIST: "
-	QUERY_LOGIN = "QUERY_LOGIN"
-	LOGIN_INFO = "LOGIN_INFO"
+    SERVER_IP = "edznux.fr"
+    SERVER_SOCKET = 4444
+    VERSION = "VERSION"
+    NB_VERSION = "1.0"
+    LOGIN = "LOGIN"
+    UNKNOWN_LOGIN = "UNKNOWN_LOGIN"
+    CREATE_ACCOUNT = "CREATE_ACCOUNT"
+    CONFIRM_ACCOUNT = "CONFIRM_ACCOUNT"
+    PASSWORD = "PASSWORD"
+    ASK_PASSWORD = "ASK_PASSWORD"
+    WRONG_PASSWORD = "ERROR:WRONG_PASSWORD"
+    SUCCESS_AUTHENTICATED = "SUCCESS:AUTHENTICATED"
+    ACCOUNT_CREATED = "SUCCESS:ACCOUNT_CREATED"
+    SUCCESS_ROOMS = "SUCCESS:Rooms sent"
+    EMPTY_ROOMS = "ERROR:no rooms found"
+    CREATE_ROOM = "CREATE_ROOM"
+    CREATE_ROMM_ERROR = "ERROR:Cannot create room"
+    SELECT_ROOM = "SELECT_ROOM"
+    SUCCESS_ROOM = "SUCCESS"
+    ERROR_ROOM = "ROOM does not exist"
+    COLOR = "COLOR"
+    PAWN = ['X', 'O', '=']
+    ERROR_COLOR = "ERROR:Color not available"
+    BEGIN = "BEGIN"
+    ERROR_MOVE = "ERROR:Impossible move"
+    QUIT_ROOM = "QUIT_ROOM"
+    QUIT_ROOM_SUCCESS = "SUCCESS:You left the room"
+    QUIT_ROOM_ERROR = "ERROR:Can't left the room"
+    GAME_FINISHED = "GAME_FINISHED"
+    ASK_LIST = "ASK_LIST"
+    LIST = "LIST"
+    QUERY_LOGIN = "QUERY_LOGIN"
+    LOGIN_INFO = "LOGIN_INFO"
+    QUIT_SERVER = "QUIT_SERVER"
 
+    def __init__(self):
+        self.sock = socket(AF_INET,  SOCK_STREAM)
+        self.sock.connect((self.SERVER_IP, self.SERVER_SOCKET))
 
-	def sendMove():
+    def sendMove(self):
+        pass
 
+    def receiveMove(self):
+        pass
 
-	def receiveMove():
+    def receive(self):
+        return self.sock.recv(1024).decode('UTF8')
 
+    def receiveBoard(self):
+        pass
 
-	def begin():
+    def sendVersion(self):
+        ''' send actual version  to the server  and parse  response '''
+        self.sock.send("{}:{}".format(self.VERSION, self.NB_VERSION).encode('UTF8'))
+        return self.sock.recv(1024).decode('UTF8') == "{}:{}".format(self.VERSION, self.NB_VERSION)
 
+    def receiveVersion(self):
+        print("receive version")
+        rcv = self.sock.recv(1024).decode('UTF8')
+        print("rcv  " + rcv)
+        parties = rcv.split(':')
+        if self.VERSION == parties[0]:
+            return parties[1]
+        return ""
 
-	def receiveBoard():
+    def sendLogin(self, login):
+        self.sock.send("{}:{}".format(self.LOGIN, login).encode('UTF8'))
 
+    def sendPassword(self, password):
+        self.sock.send("{}:{}".format(self.PASSWORD, password).encode('UTF8'))
 
-	def sendVersion():
+    def registerUser(self, login, password):
+        self.sock.send("{}:{},{}:{}".format(self.CREATE_ACCOUNT, login, self.PASSWORD, password).encode('UTF8'))
 
+    def confirmUser(self, login, confirm_password):
+        self.sock.send("{}:{},{}:{}".format(self.CONFIRM_ACCOUNT, login, self.PASSWORD, confirm_password).encode('UTF8'))
 
-	def sendLogin():
+    def receiveRooms(self):
+        rcv = self.sock.recv(1024).decode('UTF8')
+        if rcv == self.EMPTY_ROOMS:
+            print('[*] No rooms was been found')
+        else:
+            rooms = []
+            while rcv != self.SUCCESS_ROOMS:
+                tmp = rcv.split(',')
+                rooms.append([tmp[0], tmp[1].split('|'), tmp[2]])
+                rcv = self.sock.recv(1024).decode('UTF8')
+        return rooms
 
+    def createRoom(self):
+        self.sock.send("{}".format(self.CREATE_ROOM).encode('UTF8'))
 
-	def receiveAnswerLogin():
+    def joinRoom(self, nb):
+        self.sock.send("{}:{}".format(self.SELECT_ROOM, nb).encode('UTF8'))
 
+    def receiveAnswerRoom(self):
+        rcv = self.sock.recv(1024).decode('UTF8')
+        parties = rcv.split(':')
+        if self.SUCCESS_ROOM == parties[0]:
+            num = parties[1]
+            if num.isdigit():
+                return int(num)
+        return -1
 
-	def sendPassword():
+    def receiveColor(self):
+        rcv = self.sock.recv(1024).decode('UTF8')
+        parties = rcv.split(':')
+        if self.COLOR == parties[0]:
+            return parties[1]
+        return ""
 
-
-	def receiveRooms():
-
-
-	def createRoom():
-
-
-	def joinRoom():
-
-
-	def receiveAnswerRoom():
-
-
-	def initColor():
-
+    def receiveBegin(self):
+        rcv = self.sock.recv(1024).decode('UTF8')
+        parties = rcv.split(':')
+        if self.BEGIN == parties[0]:
+            return parties[1]
+        return ""
