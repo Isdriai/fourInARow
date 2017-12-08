@@ -82,16 +82,19 @@ class Protocole(object):
         self.sock.send("{}:{},{}:{}".format(self.CONFIRM_ACCOUNT, login, self.PASSWORD, confirm_password).encode('UTF8'))
 
     def receiveRooms(self):
+        print("zoeighozugeoz")
         rcv = self.sock.recv(1024).decode('UTF8')
+        print("wesh")
         if rcv == self.EMPTY_ROOMS:
             print('[*] No rooms was been found')
         else:
-            rooms = []
-            while rcv != self.SUCCESS_ROOMS:
-                tmp = rcv.split(',')
-                rooms.append([tmp[0], tmp[1].split('|'), tmp[2]])
-                rcv = self.sock.recv(1024).decode('UTF8')
-        return rooms
+            while not self.SUCCESS_ROOMS in rcv :
+                rcv += self.sock.recv(1024).decode('UTF8')
+        print(rcv)
+        new_rcv=re.sub(self.SUCCESS_ROOMS, "", rcv)
+        print("renvoi")
+
+        return re.findall(r"(ROOM:[0-9]*,[0-9a-zA-Z_|]*,[0-9]*.[0-9]*)", new_rcv)
 
     def createRoom(self):
         self.sock.send("{}".format(self.CREATE_ROOM).encode('UTF8'))

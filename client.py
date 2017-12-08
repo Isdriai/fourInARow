@@ -73,10 +73,8 @@ class Client(object):
                 raise Exception("[!]Server don't ask to confirm credentials")
         else:
             raise Exception("[!]Can't connect to the serveur")
-        print("coucou")
-        print(self.protocole.receive())
         self.rooms = self.protocole.receiveRooms()
-        
+        print("on va draw")
         self.drawRooms()
         room = input("voulez vous créer (c) ou rejoindre (r)\n")[0]
         if(room == 'c'):
@@ -88,6 +86,7 @@ class Client(object):
             self.protocole.joinRoom(choix)
             if self.protocole.receiveAnswerRoom() == -1:
                 raise Exception("Le serveur n'a pas reussi a trouver la salle")
+        print("on est rentré")
         col = self.protocole.receiveColor()
         if col == "":
             raise Exception("Le serveur n'a pas envoyé la couleur du joueur")
