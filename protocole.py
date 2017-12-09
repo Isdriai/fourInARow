@@ -16,7 +16,7 @@ class Protocole(object):
     ACCOUNT_CREATED = "SUCCESS:ACCOUNT_CREATED"
     ASK_ROOMS = "ASK_ROOMS"
     SUCCESS_ROOMS = "SUCCESS:Rooms sent"
-    EMPTY_ROOMS = "ERROR:No room found"
+    EMPTY_ROOMS = "ERROR:No rooms found"
     CREATE_ROOM = "CREATE_ROOM"
     CREATE_ROMM_ERROR = "ERROR:Cannot create room"
     SELECT_ROOM = "SELECT_ROOM"

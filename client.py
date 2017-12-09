@@ -9,9 +9,9 @@ class Client(object):
     def tour(self, mv):
         if self.protocole.MOVE == self.protocole.receive():
             self.protocole.sendMove(mv)
-            return 
+            return True
         else:
-            raise Exception("Protocole déconne")
+            return False
            
     def drawRooms(self):
         for room in self.rooms:
@@ -37,6 +37,9 @@ class Client(object):
     def askRooms(self):
         self.rooms = self.protocole.receiveRooms()
         return self.rooms
+
+    def quitRoom(self):
+        return self.protocole.quitRoom()
 
     def __init__(self, login, password, server="edznux.fr", sockt=5555):
         self.fini=False
