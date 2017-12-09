@@ -9,11 +9,28 @@ class Client(object):
     MOVE="move"
     BOARD="board"
 
+    def translateBoard(self, b):
+        #datas = self.sock.recv(1024).decode('UTF8')
+        stream = re.sub(self.protocole.BOARD, "", b)
+        cases = stream.split(',') # attention la premeire case est la largeur
+        largeur = int(cases[0])
+        hauteur = (len(cases)-1)//largeur
+        board = [["" for i in range(hauteur)] for j in range(largeur)]
+        for i in range(len(cases)-1):
+            x =  i // hauteur
+            y = hauteur - 1- (i % hauteur) 
+            board[x][y] = cases[i+1]
+        return (largeur, hauteur, board)
+
     def listen(self):
         rcv = self.protocole.receive()
+        print("debut rcv listen")
+        print(rcv)
+        print("fin rcv listen")
         if self.protocole.MOVE in rcv:
             return self.MOVE
         elif self.protocole.BOARD in rcv:
+            self.board=translateBoard(rcv)
             return self.BOARD
         else
             return ""
@@ -57,6 +74,7 @@ class Client(object):
         self.room=-1
         self.fini=False
         self.protocole = Protocole(server, sockt)
+        self.board=[]
         tries = 0
         self.protocole.sendVersion()
         #self.protocole.receiveVersion()
