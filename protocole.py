@@ -40,21 +40,21 @@ class Protocole(object):
     BOARD="BOARD:"
     MOVE="MOVE"
 
-    def __init__(self, server="edznux.fr", sockt=5555):
+    def __init__(self, server, sockt):
         self.SERVER_IP = server
         self.SERVER_SOCKET = sockt
         self.sock = socket(AF_INET,  SOCK_STREAM)
         self.sock.connect((self.SERVER_IP, self.SERVER_SOCKET))
 
     def sendMove(self, mv):
-        self.sock.send("{}:{}".format(self.MOVE, self.NB_VERSION).encode('UTF8'))
+        self.sock.send("{}:{}".format(self.MOVE, mv).encode('UTF8'))
 
     def receive(self):
         return self.sock.recv(1024).decode('UTF8')
 
     def receiveBoard(self):
-        stream = self.sock.recv(1024).decode('UTF8')
-        re.sub(self.BOARD, "", stream)
+        datas = self.sock.recv(1024).decode('UTF8')
+        stream = re.sub(self.BOARD, "", datas)
         cases = stream.split(',') # attention la premeire case est la largeur
         largeur = int(cases[0])
         hauteur = (len(cases)-1)//largeur

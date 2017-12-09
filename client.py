@@ -44,9 +44,9 @@ class Client(object):
         self.rooms = self.protocole.receiveRooms()
         return self.rooms
 
-    def __init__(self, login, password):
+    def __init__(self, login, password, server="edznux.fr", sockt=5555):
         self.fini=False
-        self.protocole = Protocole()
+        self.protocole = Protocole(server, sockt)
         tries = 0
         self.protocole.sendVersion()
         #self.protocole.receiveVersion()
