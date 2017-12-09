@@ -27,7 +27,6 @@ if __name__ == '__main__':
 
 	# c, addresse = socket.accept()
 	# c.recv(2048)
-	# c.send(b'blabla')
 
 	'''
 

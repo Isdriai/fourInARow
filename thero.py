@@ -4,6 +4,8 @@ import re
 
 class Protocole(object):
 
+    SERVER_IP = "edznux.fr"
+    SERVER_SOCKET = 5555
     VERSION = "VERSION"
     NB_VERSION = "1.0"
     LOGIN = "LOGIN"
@@ -15,9 +17,10 @@ class Protocole(object):
     WRONG_PASSWORD = "ERROR:WRONG_PASSWORD"
     SUCCESS_AUTHENTICATED = "SUCCESS:AUTHENTICATED"
     ACCOUNT_CREATED = "SUCCESS:ACCOUNT_CREATED"
+    AVAILABLE_COMMANDS = [ self.ASK_ROOMS, self.CREATE_ROOM, self.SELECT_ROOM, self.ASK_LIST, self.ASK_QUERY_LOGIN self.QUIT_ROOM, self.QUI_SERCER]
     ASK_ROOMS = "ASK_ROOMS"
     SUCCESS_ROOMS = "SUCCESS:Rooms sent"
-    EMPTY_ROOMS = "ERROR:No room found"
+    EMPTY_ROOMS = "ERROR:no rooms found"
     CREATE_ROOM = "CREATE_ROOM"
     CREATE_ROMM_ERROR = "ERROR:Cannot create room"
     SELECT_ROOM = "SELECT_ROOM"
@@ -37,33 +40,22 @@ class Protocole(object):
     QUERY_LOGIN = "QUERY_LOGIN"
     LOGIN_INFO = "LOGIN_INFO"
     QUIT_SERVER = "QUIT_SERVER"
-    BOARD="BOARD:"
-    MOVE="MOVE"
 
-    def __init__(self, server, sockt):
-        self.SERVER_IP = server
-        self.SERVER_SOCKET = sockt
+    def __init__(self):
         self.sock = socket(AF_INET,  SOCK_STREAM)
         self.sock.connect((self.SERVER_IP, self.SERVER_SOCKET))
 
-    def sendMove(self, mv):
-        self.sock.send("{}:{}".format(self.MOVE, mv).encode('UTF8'))
+    def sendMove(self):
+        pass
+
+    def receiveMove(self):
+        pass
 
     def receive(self):
         return self.sock.recv(1024).decode('UTF8')
 
     def receiveBoard(self):
-        datas = self.sock.recv(1024).decode('UTF8')
-        stream = re.sub(self.BOARD, "", datas)
-        cases = stream.split(',') # attention la premeire case est la largeur
-        largeur = int(cases[0])
-        hauteur = (len(cases)-1)//largeur
-        board = [["" for i in range(hauteur)] for j in range(largeur)]
-        for i in range(len(cases)-1):
-            x = i%largeur
-            y = hauteur-1-(i//largeur)
-            board[x][y]=cases[i+1]
-        return (largeur, hauteur, board)
+        pass
 
     def sendVersion(self):
         ''' send actual version  to the server  and parse  response '''
@@ -89,45 +81,54 @@ class Protocole(object):
         self.sock.send("{}:{},{}:{}".format(self.CREATE_ACCOUNT, login, self.PASSWORD, password).encode('UTF8'))
 
     def confirmUser(self, login, confirm_password):
-        self.sock.send("{}:{},{}:{}".format(self.CONFIRM_ACCOUNT, login, self.PASSWORD, confirm_password).encode('UTF8'))        
+        self.sock.send("{}:{},{}:{}".format(self.CONFIRM_ACCOUNT, login, self.PASSWORD, confirm_password).encode('UTF8'))
 
     def receiveRooms(self):
-        self.sock.send("{}".format(self.ASK_ROOMS).encode('UTF8'))
-        print("test receive")
+      	self.sock.send("{}".format(self.ASK_ROOMS).encode('UTF8'))
         rooms_separator = "ROOM:"
+        print("zoeighozugeoz")
         rcv = self.sock.recv(1024).decode('UTF8')
-        print(rcv)
-        print("post rcv")
-        if self.EMPTY_ROOMS in rcv:
+        print("wesh")
+        if rcv == self.EMPTY_ROOMS:
             print('[*] No rooms was been found')
         else:
             while not self.SUCCESS_ROOMS in rcv :
                 rcv += self.sock.recv(1024).decode('UTF8')
-            print(rcv)
-            new_rcv=re.sub(self.SUCCESS_ROOMS, "", rcv)
+        print(rcv)
+        new_rcv=re.sub(self.SUCCESS_ROOMS, "", rcv)
+        print("renvoi")
 
-            rooms = [ item for item in new_rcv.split(rooms_separator) if item]
+        titi = [rooms_separator + item for item in new_rcv.split(rooms_separator) if item]
+        #tmp = re.findall(r"(ROOM:[0-9]*,[0-9a-zA-Z_|]*,[0-9]*.[0-9]*)", new_rcv)
 
-            traitement = list(map(lambda x: [int(x[0]), x[1].split('|'), x[2]], map(lambda x: x.split(","), rooms)))
+        #toto = list(map(lambda x: x.split(","), tmp))
+        toto = list(map(lambda x: [x[0], x[1].split('|'), x[2]], map(lambda x: x.split(","), titi)))
 
-            return traitement
-        return []
-
+        print (toto)
+        return toto
+      
     def createRoom(self):
-        envoie = "{}".format(self.CREATE_ROOM).encode('UTF8')
-        print("envoi\n" )
-        print(envoie)
         self.sock.send("{}".format(self.CREATE_ROOM).encode('UTF8'))
 
     def joinRoom(self, nb):
-        envoie = "{}:{}".format(self.SELECT_ROOM, nb).encode('UTF8')
-        print("envoi\n" )
-        print(envoie)
-        self.sock.send(envoie)
+        self.sock.send("{}:{}".format(self.SELECT_ROOM, nb).encode('UTF8'))
+
+  	def getPlayersList(self):
+      	self.sock.send("{}".format(self.ASK_LIST).encode('UTF8'))
+      	rcv = self.sock.recv(1024).decode('UTF8')
+        return re.sub('LIST:', '', rcv).split(',')
+      
+	def queryLogin(self, player):
+      	info = {}
+      	self.sock.send("{}:{}".format(self.QUERY_LOGIN, player).encode('UTF8'))
+        rcv = re.sub('LOGIN_INFO:', '', self.sock.recv(1024).decode('UTF8')).split(',')
+        info['name'], info['last_connection'], info['best_score'], info['best_time'], info['nb_game'], info['first_game'] = rcv[0], rcv[1], rcv[2], rcv[3], rcv[4], rcv[5] 
+        return info
+
+    
 
     def receiveAnswerRoom(self):
         rcv = self.sock.recv(1024).decode('UTF8')
-        print("rcv\n"+rcv)
         parties = rcv.split(':')
         if self.SUCCESS_ROOM == parties[0]:
             num = parties[1]
@@ -135,42 +136,28 @@ class Protocole(object):
                 return int(num)
         return -1
 
-    def receiveColorBegin(self):
-        print("couleur")
+    def receiveColor(self):
         rcv = self.sock.recv(1024).decode('UTF8')
-        print("ici")
-        print(rcv)
-        print("fin rcv")
         parties = rcv.split(':')
-        color =""
-        begin =""
-        # ex parties: "COLOR:OBEGIN:X"
-        if self.COLOR in parties[0]: # COLOR
-            color=parties[1][0] # OBEGIN => 0
-        if self.BEGIN in parties[1]:
-            begin=parties[2] # X
-        return (color, begin)
+        if self.COLOR == parties[0]:
+            return parties[1]
+        return ""
 
-    def getPlayersList(self):
-        self.sock.send("{}".format(self.ASK_LIST).encode('UTF8'))
+    def receiveBegin(self):
         rcv = self.sock.recv(1024).decode('UTF8')
-        return re.sub('LIST:', '', rcv).split(',')
+        parties = rcv.split(':')
+        if self.BEGIN == parties[0]:
+            return parties[1]
+        return ""
       
-    def queryLogin(self, player):
-        info = {}
-        self.sock.send("{}:{}".format(self.QUERY_LOGIN, player).encode('UTF8'))
-        rcv = re.sub('LOGIN_INFO:', '', self.sock.recv(1024).decode('UTF8')).split(',')
-        info['name'], info['last_connection'], info['best_score'], info['best_time'], info['nb_game'], info['first_game'] = rcv[0], rcv[1], rcv[2], rcv[3], rcv[4], rcv[5] 
-        return inf
-
-    def quitRoom(self):
-        self.sock.send("{}".format(self.QUI_ROOM).encode('UTF8'))
+	def quitRoom(self):
+      	self.sock.send("{}".format(self.QUI_ROOM).encode('UTF8'))
         rcv = self.sock.recv(1024).decode('UTF8')
         if rcv == self.QUIT_ROOM_SUCCESS:
-            return True
+        	return True
         else:
-            return False
+          	return False
       
-    def quitServer(self):
-        self.sock.send("{}".format(self.QUI_SERVER).encode('UTF8'))
+	def quitServer(self):
+      	self.sock.send("{}".format(self.QUI_SERVER).encode('UTF8'))
         print('[*]You left the server')

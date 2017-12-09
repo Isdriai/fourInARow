@@ -32,13 +32,7 @@ class Client(object):
         return self.room
 
     def initColor(self):
-        self.color=""
-        col = self.protocole.receiveColor()
-        self.color = col
-
-        self.begin=""
-        beg = self.protocole.receiveBegin()
-        self.begin = beg
+        self.color, self.begin=self.protocole.receiveColorBegin()
 
     def askRooms(self):
         self.rooms = self.protocole.receiveRooms()
