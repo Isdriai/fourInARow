@@ -66,9 +66,6 @@ c.send(l[7])
 9
 
 
-c.initColor()
-
-
 
 c.send(l[8])
 14

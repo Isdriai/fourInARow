@@ -1,4 +1,5 @@
 from protocole import Protocole
+import re
 
 class Client(object):
     """docstring for Client"""
@@ -30,9 +31,9 @@ class Client(object):
         if self.protocole.MOVE in rcv:
             return self.MOVE
         elif self.protocole.BOARD in rcv:
-            self.board=translateBoard(rcv)
+            self.board=self.translateBoard(rcv)
             return self.BOARD
-        else
+        else:
             return ""
 
     def sendMove(self, mv):
