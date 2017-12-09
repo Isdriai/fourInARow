@@ -51,19 +51,6 @@ class Protocole(object):
     def receive(self):
         return self.sock.recv(1024).decode('UTF8')
 
-    def translateBoard(self, b):
-        #datas = self.sock.recv(1024).decode('UTF8')
-        stream = re.sub(self.BOARD, "", b)
-        cases = stream.split(',') # attention la premeire case est la largeur
-        largeur = int(cases[0])
-        hauteur = (len(cases)-1)//largeur
-        board = [["" for i in range(hauteur)] for j in range(largeur)]
-        for i in range(len(cases)-1):
-            x =  i // hauteur
-            y = hauteur - 1- (i % hauteur) 
-            board[x][y] = cases[i+1]
-        return (largeur, hauteur, board)
-
     def sendVersion(self):
         ''' send actual version  to the server  and parse  response '''
         self.sock.send("{}:{}".format(self.VERSION, self.NB_VERSION).encode('UTF8'))
