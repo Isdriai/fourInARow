@@ -59,8 +59,8 @@ class Protocole(object):
         hauteur = (len(cases)-1)//largeur
         board = [["" for i in range(hauteur)] for j in range(largeur)]
         for i in range(len(cases)-1):
-            x =  i % largeur
-            y = hauteur - 1- (i // largeur)
+            x =  i // hauteur
+            y = hauteur - 1- (i % hauteur) 
             board[x][y] = cases[i+1]
         return (largeur, hauteur, board)
 

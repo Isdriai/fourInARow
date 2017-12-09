@@ -12,8 +12,7 @@ if __name__ == '__main__':
 			b"ROOM:2,titi|tutu,NOT_STARTED",
 			b"SUCCESS:Rooms sent",
 			b"SUCCESS:2", # faut faire join
-			b"COLOR:O",
-			b"BEGIN:X",
+			b"COLOR:OBEGIN:X",
 			board,
 			b"MOVE"]
 
@@ -48,6 +47,7 @@ c.recv(2048)
 b'CONFIRM_ACCOUNT:coucou,PASSWORD:coucou'
 c.send(l[3])
 23
+c.recv(2048)
 c.send(l[4])
 25
 c.send(l[5])
@@ -61,7 +61,7 @@ c.initRoom(2)
 
 
 c.recv(2048)
-b'ASK_ROOMSSELECT_ROOM:2'
+b'SELECT_ROOM:2'
 c.send(l[7])
 9
 
@@ -71,15 +71,14 @@ c.initColor()
 
 
 c.send(l[8])
-7
-c.send(l[9])
-7
+14
+
 
 
 board = c.getBoard()
 
 
-c.send(l[10])
+c.send(l[9])
 29
 
 '''
