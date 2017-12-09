@@ -1,5 +1,4 @@
 from socket import socket, AF_INET, SOCK_STREAM
-from time import sleep
 import re
 
 class Protocole(object):
@@ -37,13 +36,13 @@ class Protocole(object):
     QUERY_LOGIN = "QUERY_LOGIN"
     LOGIN_INFO = "LOGIN_INFO"
     QUIT_SERVER = "QUIT_SERVER"
-    BOARD="BOARD:"
-    MOVE="MOVE"
+    BOARD = "BOARD:"
+    MOVE = "MOVE"
 
     def __init__(self, server, sockt):
         self.SERVER_IP = server
         self.SERVER_SOCKET = sockt
-        self.sock = socket(AF_INET,  SOCK_STREAM)
+        self.sock = socket(AF_INET, SOCK_STREAM)
         self.sock.connect((self.SERVER_IP, self.SERVER_SOCKET))
 
     def sendMove(self, mv):
@@ -60,9 +59,9 @@ class Protocole(object):
         hauteur = (len(cases)-1)//largeur
         board = [["" for i in range(hauteur)] for j in range(largeur)]
         for i in range(len(cases)-1):
-            x = i%largeur
-            y = hauteur-1-(i//largeur)
-            board[x][y]=cases[i+1]
+            x =  i % largeur
+            y = hauteur - 1- (i // largeur)
+            board[x][y] = cases[i+1]
         return (largeur, hauteur, board)
 
     def sendVersion(self):
@@ -109,8 +108,9 @@ class Protocole(object):
             rooms = [ item for item in new_rcv.split(rooms_separator) if item]
 
             traitement = list(map(lambda x: [int(x[0]), x[1].split('|'), x[2]], map(lambda x: x.split(","), rooms)))
-
+            print("retour1")
             return traitement
+        print("retour2")
         return []
 
     def createRoom(self):
@@ -124,10 +124,13 @@ class Protocole(object):
         print("envoi\n" )
         print(envoie)
         self.sock.send(envoie)
+        print("envoyé\n" )
 
     def receiveAnswerRoom(self):
+        print("attendte rep answer room")
         rcv = self.sock.recv(1024).decode('UTF8')
         print("rcv\n"+rcv)
+        print("fin rcv answer room")
         parties = rcv.split(':')
         if self.SUCCESS_ROOM == parties[0]:
             num = parties[1]
@@ -155,22 +158,26 @@ class Protocole(object):
         self.sock.send("{}".format(self.ASK_LIST).encode('UTF8'))
         rcv = self.sock.recv(1024).decode('UTF8')
         return re.sub('LIST:', '', rcv).split(',')
-      
+
     def queryLogin(self, player):
         info = {}
         self.sock.send("{}:{}".format(self.QUERY_LOGIN, player).encode('UTF8'))
         rcv = re.sub('LOGIN_INFO:', '', self.sock.recv(1024).decode('UTF8')).split(',')
-        info['name'], info['last_connection'], info['best_score'], info['best_time'], info['nb_game'], info['first_game'] = rcv[0], rcv[1], rcv[2], rcv[3], rcv[4], rcv[5] 
-        return inf
+        #info['name'], info['last_connection'], info['best_score'], info['best_time'], info['nb_game'], info['first_game'] = rcv[0], rcv[1], rcv[2], rcv[3], rcv[4], rcv[5]
+        info['name'], info['last_connection'], info['best_score'], info['best_time'], info['nb_game'], info['first_game'] = rcv[:6]
+        return info
 
     def quitRoom(self):
-        self.sock.send("{}".format(self.QUI_ROOM).encode('UTF8'))
+        self.sock.send("{}".format(self.QUIT_ROOM).encode('UTF8'))
         rcv = self.sock.recv(1024).decode('UTF8')
+        print("rcv")
+        print(rcv)
+        print("fin rcv")
         if rcv == self.QUIT_ROOM_SUCCESS:
             return True
         else:
             return False
-      
+
     def quitServer(self):
-        self.sock.send("{}".format(self.QUI_SERVER).encode('UTF8'))
+        self.sock.send("{}".format(self.QUIT_SERVER).encode('UTF8'))
         print('[*]You left the server')
