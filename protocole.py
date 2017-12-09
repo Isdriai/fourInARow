@@ -51,9 +51,9 @@ class Protocole(object):
     def receive(self):
         return self.sock.recv(1024).decode('UTF8')
 
-    def receiveBoard(self):
-        datas = self.sock.recv(1024).decode('UTF8')
-        stream = re.sub(self.BOARD, "", datas)
+    def translateBoard(self, b):
+        #datas = self.sock.recv(1024).decode('UTF8')
+        stream = re.sub(self.BOARD, "", b)
         cases = stream.split(',') # attention la premeire case est la largeur
         largeur = int(cases[0])
         hauteur = (len(cases)-1)//largeur

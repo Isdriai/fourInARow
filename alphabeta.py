@@ -1,24 +1,32 @@
+import pdb
+
+def printb(board):
+    for row in range(len(board[0])):
+        for col in range(len(board)):
+            print(board[row][col],end=' ')
+        print()
+
 def potentialsMove(board):
     mouvements = []
-    for x in xrange(board.w):
-        if board[x][0] == 0:
+    for x in range(len(board)):
+        if board[x][0] == "":
             mouvements.append(x)
     return mouvements
 
 def evaluation(board, joueur):
     _, tuile = joueur
-    
     score = horizontale(board, tuile)
     score += verticale(board, tuile)
     score += diagonaleBasse(board, tuile)
     score += diagonaleHaute(board, tuile)
-
     return score
 
 def horizontale(board, tuile):
     tot = 0
+    print(len(board)-3)
     for row in range(len(board[0])):
         for col in range(len(board)-3):
+            print(str(row) + "   " + str(col) + "   " + board[col][row])
             if board[col][row] == tuile:
                 if board[col+1][row] == tuile:
                     if board[col+2][row] == tuile:
@@ -87,15 +95,20 @@ def diagonaleHaute(board, tuile):
 
 # joueur est un booleen ( true c'est le joueur )
 def alphabeta(board, a, b, joueur, prof):
+    mx, tuile = joueur
     if prof == 0:
-        return evaluation(board, joueur)
+        if not mx:
+            possibles = ['X', 'O'] 
+            possibles.remove(tuile)
+            tuile=possibles[0]
+        return evaluation(board, tuile)
     alpha = a 
     beta = b 
-    if joueur:
+    if mx:
         for succ in potentialsMove(board):
             copie = board.copy(0)
             copie.makeMove(succ)
-            beta = min(beta, alphabeta(copie, alpha, beta, not joueur, prof-1))
+            beta = min(beta, alphabeta(copie, alpha, beta, not mx, prof-1))
             if alpha>=beta:
                 return alpha
         return beta
@@ -103,7 +116,10 @@ def alphabeta(board, a, b, joueur, prof):
         for succ in potentialsMove(board):
             copie = board.copy(0)
             copie.makeMove(succ)
-            alpha = max(alpha, alphabeta(copie, alpha, beta, not joueur, prof-1))
+            alpha = max(alpha, alphabeta(copie, alpha, beta, not mx, prof-1))
             if alpha>=beta:
                 return beta
         return alpha
+
+
+# b = [["","X","O","O"],["","","X","O"],["","","O","X"],["","","",""]]

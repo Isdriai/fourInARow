@@ -2,16 +2,24 @@ from protocole import Protocole
 
 class Client(object):
     """docstring for Client"""
-    def getBoard(self):
-        largeur, hauteur, board = self.protocole.receiveBoard()
-        return (largeur, hauteur, board)
+    #def getBoard(self):
+    #    largeur, hauteur, board = self.protocole.receiveBoard()
+    #    return (largeur, hauteur, board)
 
-    def tour(self, mv):
-        if self.protocole.MOVE == self.protocole.receive():
-            self.protocole.sendMove(mv)
-            return True
-        else:
-            return False
+    MOVE="move"
+    BOARD="board"
+
+    def listen(self):
+        rcv = self.protocole.receive()
+        if self.protocole.MOVE in rcv:
+            return self.MOVE
+        elif self.protocole.BOARD in rcv:
+            return self.BOARD
+        else
+            return ""
+
+    def sendMove(self, mv):
+        self.protocole.sendMove(mv)
            
     def drawRooms(self):
         for room in self.rooms:
@@ -19,7 +27,7 @@ class Client(object):
 
     def initRoom(self, ide):
        # room = input("voulez vous créer (c) ou rejoindre (r)\n")[0]
-        self.room=-1
+        
         if ide < 1 or self.rooms == []:
             print("crée")
             self.protocole.createRoom()
@@ -29,6 +37,7 @@ class Client(object):
             self.protocole.joinRoom(ide)
             self.room = self.protocole.receiveAnswerRoom()
             print("wesh")
+        self.initColor()
         return self.room
 
     def initColor(self):
@@ -42,6 +51,10 @@ class Client(object):
         return self.protocole.quitRoom()
 
     def __init__(self, login, password, server="edznux.fr", sockt=5555):
+        self.rooms=[]
+        self.color=""
+        self.begin=""
+        self.room=-1
         self.fini=False
         self.protocole = Protocole(server, sockt)
         tries = 0
