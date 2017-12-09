@@ -1,7 +1,7 @@
-def potentialsMove(plateau):
+def potentialsMove(board):
     mouvements = []
-    for x in xrange(plateau.w):
-        if plateau.board[x][0] == 0:
+    for x in xrange(board.w):
+        if board[x][0] == 0:
             mouvements.append(x)
     return mouvements
 
@@ -14,7 +14,6 @@ def evaluation(board, joueur):
     score += diagonaleHaute(board, tuile)
 
     return score
-
 
 def horizontale(board, tuile):
     tot = 0
@@ -68,7 +67,6 @@ def diagonaleBasse(board, tuile):
                     tot += 5
     return tot
 
-
 # diagonale haute = /
 def diagonaleHaute(board, tuile):
     tot =0 
@@ -87,22 +85,25 @@ def diagonaleHaute(board, tuile):
                     tot += 5
     return tot
 
-# joueur = (Boolean, tuile)
-# le boolean dit si c'est un etage ou c'est le joueur qui joue
-# la tuile c'est pr la fonction
-# d'evaluation repéré les coups sur le plateau
-def alphabeta(plateau, alpha, beta, prof, joueur):
-    tourMax, tuile = joueur
+# joueur est un booleen ( true c'est le joueur )
+def alphabeta(board, a, b, joueur, prof):
     if prof == 0:
-        evaluation(plateau.board, joueur)
-    else
-        for move in potentialsMove(plateau):
-            copie = plateau.copy()
-            copie.makeMove(move)
-            val = -alphabeta(copie, -beta, -alpha, prof-1, (not tourMax,tuile))
-            if val > meilleur:
-                meilleur = val
-                if meilleur > alpha:
-                    alpha = meilleur
-                    if alpha >= beta:
-                        return meilleur
+        return evaluation(board, joueur)
+    alpha = a 
+    beta = b 
+    if joueur:
+        for succ in potentialsMove(board):
+            copie = board.copy(0)
+            copie.makeMove(succ)
+            beta = min(beta, alphabeta(copie, alpha, beta, not joueur, prof-1))
+            if alpha>=beta:
+                return alpha
+        return beta
+    else:
+        for succ in potentialsMove(board):
+            copie = board.copy(0)
+            copie.makeMove(succ)
+            alpha = max(alpha, alphabeta(copie, alpha, beta, not joueur, prof-1))
+            if alpha>=beta:
+                return beta
+        return alpha

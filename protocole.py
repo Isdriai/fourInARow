@@ -140,7 +140,7 @@ class Protocole(object):
 
     def receiveColorBegin(self):
         print("couleur")
-        rcv = self.sock.recv(1024).decode('UTF8')
+        rcv = self.sock.recv(len(self.COLOR)+2).decode('UTF8')
         print("ici")
         print(rcv)
         print("fin rcv")
@@ -149,9 +149,17 @@ class Protocole(object):
         begin =""
         # ex parties: "COLOR:OBEGIN:X"
         if self.COLOR in parties[0]: # COLOR
-            color=parties[1][0] # OBEGIN => 0
-        if self.BEGIN in parties[1]:
-            begin=parties[2] # X
+            color=parties[1] # O
+        
+        print("couleur")
+        rcv = self.sock.recv(len(self.COLOR)+2).decode('UTF8')
+        print("ici")
+        print(rcv)
+        print("fin rcv")
+        parties = rcv.split(':')
+
+        if self.BEGIN in parties[0]:
+            begin=parties[1] # X
         return (color, begin)
 
     def getPlayersList(self):
